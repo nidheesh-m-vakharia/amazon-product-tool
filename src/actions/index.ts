@@ -68,7 +68,7 @@ export const composeItems = async (formData: FormData,) => {
   const link = formData.get("link",) as string;
   const isValid = await validateAmazonUrl(link,);
 
-  console.log({ isValid },);
+  console.log({ isValid, },);
 
   if (!isValid) {
     throw new Error("Invalid Amazon URL",);

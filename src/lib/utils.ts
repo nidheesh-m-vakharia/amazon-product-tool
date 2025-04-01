@@ -1,6 +1,6 @@
+import { load, } from "cheerio";
 import { type ClassValue, clsx, } from "clsx";
 import { twMerge, } from "tailwind-merge";
-import { load } from "cheerio";
 
 type Success<T,> = {
   data: T;
@@ -77,32 +77,49 @@ export const isValidAmazonUrl = (url: string,) => {
   }
 };
 
+export const extractProductNameAndPrice = (htmlAsString: string,) => {
+  const $ = load(htmlAsString,);
 
-export const extractProductNameAndPrice = (htmlAsString: string) => {
-  const $ = load(htmlAsString);
-
-  let productName = $("#aod-asin-title-text").text().trim();
+  let productName = $("#aod-asin-title-text",).text().trim();
 
   if (!productName) {
-    productName = $(".aod-asin-title-text-class").text().trim();
+    productName = $(".aod-asin-title-text-class",).text().trim();
 
-    console.log({ productName });
+    console.log({ productName, },);
 
     if (!productName) {
-      throw new Error("Could not extract product name");
+      throw new Error("Could not extract product name",);
     }
   }
 
-  const priceWhole = $(".a-price-whole").text().trim() || "";
-  const priceFraction = $(".a-price-fraction").text().trim() || "";
-  const price = priceWhole + priceFraction;
+  let price;
+  const priceElement = $(
+    'span[aria-hidden="true"] > span.a-price-symbol:contains("$")',
+  )
+    .filter(function() {
+      return (
+        $(this,).next().is("span.a-price-whole",)
+        && $(this,).next().next().is("span.a-price-fraction",)
+      );
+    },)
+    .first();
 
-  productName = limitToSixWords(productName);
-  console.log({ productName, price });
+  if (priceElement.length) {
+    price = priceElement
+      .parent()
+      .text();
+  }
+
+  if (!price) {
+    throw new Error("Could not extract product price",);
+  }
+
+  productName = limitToSixWords(productName,);
+  console.log({ productName, price, },);
 
   return {
     name: productName,
-    price: parseFloat(price.replace("$", "")),
+    price: parseFloat(price.replace("$", "",),),
   };
 };
 
