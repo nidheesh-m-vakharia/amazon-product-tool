@@ -1,6 +1,6 @@
 import { type ClassValue, clsx, } from "clsx";
-import { JSDOM, } from "jsdom";
 import { twMerge, } from "tailwind-merge";
+import { load } from "cheerio";
 
 type Success<T,> = {
   data: T;
@@ -77,37 +77,32 @@ export const isValidAmazonUrl = (url: string,) => {
   }
 };
 
-export const extractProductNameAndPrice = (htmlAsString: string,) => {
-  const dom = new JSDOM(htmlAsString,);
 
-  const document = dom.window.document;
+export const extractProductNameAndPrice = (htmlAsString: string) => {
+  const $ = load(htmlAsString);
 
-  let selectedDOMObject = document.querySelector("#aod-asin-title-text",);
-  let productName = selectedDOMObject?.textContent?.trim();
+  let productName = $("#aod-asin-title-text").text().trim();
 
   if (!productName) {
-    selectedDOMObject = document.querySelector("aod-asin-title-text-class",);
-    productName = selectedDOMObject?.textContent?.trim();
+    productName = $(".aod-asin-title-text-class").text().trim();
 
-    console.log({ productName, },);
+    console.log({ productName });
 
     if (!productName) {
-      throw new Error("Could not extract product name",);
+      throw new Error("Could not extract product name");
     }
   }
 
-  const priceWhole =
-    document.querySelector(".a-price-whole",)?.textContent?.trim() || "";
-  const priceFraction =
-    document.querySelector(".a-price-fraction",)?.textContent?.trim() || "";
+  const priceWhole = $(".a-price-whole").text().trim() || "";
+  const priceFraction = $(".a-price-fraction").text().trim() || "";
   const price = priceWhole + priceFraction;
 
-  productName = limitToSixWords(productName,);
-  console.log({ productName, price, },);
+  productName = limitToSixWords(productName);
+  console.log({ productName, price });
 
   return {
     name: productName,
-    price: parseFloat(price.replace("$", "",),),
+    price: parseFloat(price.replace("$", "")),
   };
 };
 
