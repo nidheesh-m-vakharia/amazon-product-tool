@@ -4,7 +4,7 @@ export function Header() {
       <h1 className="text-4xl font-semibold tracking-tight">
         Amazon Product Tool
       </h1>
-      <p className=" text-lg">
+      <p className=" font-light text-lg">
         Manage and export your Amazon product data effortlessly
       </p>
     </div>

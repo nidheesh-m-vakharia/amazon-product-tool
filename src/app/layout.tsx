@@ -1,11 +1,11 @@
 // layout.tsx
 import type { Metadata, } from "next";
-import { Inter, } from "next/font/google";
+import { Geist, } from "next/font/google";
 import "./globals.css";
 import { Toaster, } from "@/components/ui/sonner";
 import { ItemsProvider, } from "@/providers/items-provider";
 
-const inter = Inter({
+const inter = Geist({
   subsets: ["latin",],
   variable: "--font-inter",
 },);
@@ -24,7 +24,7 @@ export default function RootLayout({
     <ItemsProvider>
       <html lang="en">
         <body
-          className={`${inter.className}   antialiased`}
+          className={`${inter.className}  antialiased`}
         >
           {children}
           <Toaster

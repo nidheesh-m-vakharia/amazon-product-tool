@@ -41,7 +41,7 @@ export function ClipboardArea() {
           )
           : (
             <>
-              <pre className="bg-accent p-4 rounded-md overflow-x-auto text-sm">
+              <pre className="bg-secondary p-4 rounded-md overflow-x-auto text-sm">
               {csvContent}
               </pre>
               <div className="mt-4 flex justify-end">
