@@ -24,7 +24,7 @@ export default function RootLayout({
     <ItemsProvider>
       <html lang="en">
         <body
-          className={`${inter.className}  antialiased`}
+          className={`${inter.className} antialiased`}
         >
           {children}
           <Toaster

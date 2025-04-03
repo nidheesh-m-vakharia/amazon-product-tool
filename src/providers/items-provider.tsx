@@ -60,7 +60,7 @@ export const ItemsProvider = (
             ? {
               ...item,
               quantity,
-              amount: item.cost * quantity,
+              amount: Math.round(item.cost * quantity * 100,) / 100,
             }
             : item
         )

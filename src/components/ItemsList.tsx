@@ -14,7 +14,6 @@ import { useItems, } from "@/providers/items-provider";
 import { ExternalLink, Trash2, } from "lucide-react";
 import { memo, useCallback, } from "react";
 
-// Memoized TableRow Component
 const MemoizedTableRow = memo(function TableRowComponent({
   item,
   onUpdateQuantity,
@@ -80,7 +79,6 @@ const MemoizedTableRow = memo(function TableRowComponent({
 export function ItemsList() {
   const { items, removeItem, updateQuantity, } = useItems();
 
-  // Memoize removeItem and updateQuantity to avoid re-creating them
   const handleRemoveItem = useCallback(
     (id: string,) => {
       removeItem(id,);
@@ -122,6 +120,11 @@ export function ItemsList() {
               ))}
             </TableBody>
           </Table>
+          {items.length === 0 && (
+            <div className="w-full text-center p-4 text-sm text-muted-foreground">
+              No items added yet
+            </div>
+          )}
         </div>
       </div>
     </div>

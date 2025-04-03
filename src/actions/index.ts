@@ -55,7 +55,10 @@ export async function scrapeAmazonProduct(id: string,): Promise<
     throw htmlError || new Error("html is null",);
   }
 
-  const data = extractProductNameAndPrice(html,);
+  const data: {
+    name: string;
+    price: number;
+  } = extractProductNameAndPrice(html,);
 
   if (!data.name || !data.price) {
     throw new Error("Could not extract product data",);

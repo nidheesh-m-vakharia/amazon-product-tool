@@ -1,6 +1,11 @@
 import { load, } from "cheerio";
 import { type ClassValue, clsx, } from "clsx";
 import { twMerge, } from "tailwind-merge";
+import {
+  PRODUCT_ID_NOT_FOUND,
+  PRODUCT_NAME_NOT_FOUND,
+  PRODUCT_PRICE_NOT_FOUND,
+} from "./errors";
 
 type Success<T,> = {
   data: T;
@@ -48,23 +53,22 @@ export const generateShortenedUrl = (id: string,): string => {
 };
 
 export const extractAmazonProductId = async (url: string,): Promise<string> => {
-  try {
-    const urlObj = new URL(url,);
-    const pathname = urlObj.pathname;
+  const urlObj = new URL(url,);
+  const pathname = urlObj.pathname;
+  const linkPatterns: RegExp[] = [
+    /\/dp\/([A-Z0-9]{10})/,
+    /\/gp\/product\/([A-Z0-9]{10})/,
+    /\/([A-Z0-9]{10})/,
+  ];
 
-    const dpMatch = pathname.match(/\/dp\/([A-Z0-9]{10})/,);
-    if (dpMatch) return dpMatch[1];
-
-    const gpMatch = pathname.match(/\/gp\/product\/([A-Z0-9]{10})/,);
-    if (gpMatch) return gpMatch[1];
-
-    const directMatch = pathname.match(/\/([A-Z0-9]{10})/,);
-    if (directMatch) return directMatch[1];
-
-    throw new Error("Could not extract product ID from URL",);
-  } catch {
-    throw new Error("Invalid Amazon URL",);
+  for (const pattern of linkPatterns) {
+    const match = pathname.match(pattern,);
+    if (match) {
+      return match[1];
+    }
   }
+
+  throw PRODUCT_ID_NOT_FOUND;
 };
 
 const scrapeableHostnames = ["amazon.com", "www.amazon.com",];
@@ -77,22 +81,18 @@ export const isValidAmazonUrl = (url: string,) => {
   }
 };
 
-export const extractProductNameAndPrice = (htmlAsString: string,) => {
+export const extractProductNameAndPrice = (htmlAsString: string,): {
+  name: string;
+  price: number;
+} => {
   const $ = load(htmlAsString,);
-
-  let productName = $("#aod-asin-title-text",).text().trim();
-
+  let productName = $("#aod-asin-title-text",).text().trim()
+    ?? $(".aod-asin-title-text-class",).text().trim();
   if (!productName) {
-    productName = $(".aod-asin-title-text-class",).text().trim();
-
-    console.log({ productName, },);
-
-    if (!productName) {
-      throw new Error("Could not extract product name",);
-    }
+    throw PRODUCT_NAME_NOT_FOUND;
   }
 
-  let price;
+  let productPrice;
   const priceElement = $(
     'span[aria-hidden="true"] > span.a-price-symbol:contains("$")',
   )
@@ -105,21 +105,21 @@ export const extractProductNameAndPrice = (htmlAsString: string,) => {
     .first();
 
   if (priceElement.length) {
-    price = priceElement
+    productPrice = priceElement
       .parent()
       .text();
   }
 
-  if (!price) {
-    throw new Error("Could not extract product price",);
+  if (!productPrice) {
+    throw PRODUCT_PRICE_NOT_FOUND;
   }
 
   productName = limitToSixWords(productName,);
-  console.log({ productName, price, },);
+  productPrice = parseFloat(productPrice.replace("$", "",),).toFixed(2,);
 
   return {
     name: productName,
-    price: parseFloat(price.replace("$", "",),),
+    price: parseFloat(productPrice,),
   };
 };
 
@@ -127,25 +127,18 @@ export const createScrapeUrl = (id: string,): string =>
   `https://www.amazon.com/gp/product/ajax/ref=dp_aod_pn?asin=${id}&m=&qid=&smid=&sourcecustomerorglistid=&sourcecustomerorglistitemid=&sr=&pc=dp&experienceId=aodAjaxMain`;
 
 function limitToSixWords(input: string,): string {
-  try {
-    if (input.trim() === "") {
-      return ""; // Return an empty string for invalid or empty input
-    }
-
-    const wordRegex = /\b\w+(?:-\w+)?\b/g;
-
-    const matches = input.match(wordRegex,);
-
-    console.log({ matches, },);
-
-    if (!matches) {
-      return "";
-    }
-
-    const limitedWords = matches.slice(0, 6,);
-
-    return limitedWords.join(" ",);
-  } catch (error) {
-    throw error;
+  if (input.trim() === "") {
+    return "";
   }
+
+  const wordRegex = /\b\w+(?:-\w+)?\b/g;
+  const matches = input.match(wordRegex,);
+
+  if (!matches) {
+    return "";
+  }
+
+  const limitedWords = matches.slice(0, 6,);
+
+  return limitedWords.join(" ",);
 }
