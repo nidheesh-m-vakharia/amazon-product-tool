@@ -4,13 +4,13 @@ import { composeItems, } from "@/actions";
 import { Button, } from "@/components/ui/button";
 import { Input, } from "@/components/ui/input";
 import { tryCatch, } from "@/lib/utils";
-import { useItems, } from "@/providers/items-provider";
+import { useItems, } from "@/hooks/use-items";
 import { Plus, } from "lucide-react";
 import { useCallback, useState, } from "react";
 import { toast, } from "sonner";
 
 export function Form() {
-  const { addItem, exists, } = useItems();
+  const { addItem, exists } = useItems();
   const [isSubmitting, setIsSubmitting,] = useState(false,);
 
   const handleSubmit = useCallback(

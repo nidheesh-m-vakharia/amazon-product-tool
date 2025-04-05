@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useItems, } from "@/providers/items-provider";
+import { useItems, } from "@/hooks/use-items";
 import { ExternalLink, Trash2, } from "lucide-react";
 import { memo, useCallback, } from "react";
 import { toast, } from "sonner";

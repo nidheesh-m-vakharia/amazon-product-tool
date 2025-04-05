@@ -1,7 +1,7 @@
 "use client";
 
 import { Button, } from "@/components/ui/button";
-import { useItems, } from "@/providers/items-provider";
+import { useItems, } from "@/hooks/use-items";
 import { Clipboard, } from "lucide-react";
 import { useCallback, useMemo, } from "react";
 import { toast, } from "sonner";
