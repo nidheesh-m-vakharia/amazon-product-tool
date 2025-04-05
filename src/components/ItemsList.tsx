@@ -13,6 +13,7 @@ import {
 import { useItems, } from "@/providers/items-provider";
 import { ExternalLink, Trash2, } from "lucide-react";
 import { memo, useCallback, } from "react";
+import { toast, } from "sonner";
 
 const MemoizedTableRow = memo(function TableRowComponent({
   item,
@@ -77,11 +78,12 @@ const MemoizedTableRow = memo(function TableRowComponent({
 },);
 
 export function ItemsList() {
-  const { items, removeItem, updateQuantity, } = useItems();
+  const { items, removeItem, updateQuantity, clearAllItems, } = useItems();
 
   const handleRemoveItem = useCallback(
     (id: string,) => {
       removeItem(id,);
+      toast.success("Item removed",);
     },
     [removeItem,],
   );
@@ -93,11 +95,32 @@ export function ItemsList() {
     [updateQuantity,],
   );
 
+  const handleClearItems = useCallback(
+    () => {
+      if (items.length === 0) {
+        return;
+      }
+      clearAllItems();
+      toast.success("All items cleared",);
+    },
+    [clearAllItems,],
+  );
+
   return (
     <div>
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Products List</h2>
         <p className="text-sm">Manage your products and quantities here</p>
+        <div className="flex justify-end">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClearItems}
+            className="w-fit"
+          >
+            Clear All
+          </Button>
+        </div>
         <div className="rounded-md overflow-x-auto">
           <Table>
             <TableHeader>

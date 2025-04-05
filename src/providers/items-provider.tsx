@@ -8,6 +8,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import { toast, } from "sonner";
 
 export type ItemsContextType = {
   items: Items;
@@ -15,6 +16,7 @@ export type ItemsContextType = {
   removeItem: (id: string,) => void;
   updateQuantity: (id: string, quantity: number,) => void;
   exists: (id: string,) => boolean;
+  clearAllItems: () => void;
 };
 
 const ItemsContext = createContext<ItemsContextType | null>(null,);
@@ -22,11 +24,9 @@ const ItemsContext = createContext<ItemsContextType | null>(null,);
 export const ItemsProvider = (
   { children, }: { children: React.ReactNode; },
 ) => {
-  // Split state into smaller pieces
   const [items, setItems,] = useState<Items>([],);
   const [itemIds, setItemIds,] = useState<Set<string>>(new Set(),);
 
-  // Add item
   const addItem = useCallback(
     (item: Item,) => {
       if (itemIds.has(item.id,)) {
@@ -38,7 +38,6 @@ export const ItemsProvider = (
     [itemIds,],
   );
 
-  // Remove item
   const removeItem = useCallback(
     (id: string,) => {
       setItems((prevItems,) => prevItems.filter((item,) => item.id !== id));
@@ -47,11 +46,23 @@ export const ItemsProvider = (
         newIds.delete(id,);
         return newIds;
       },);
+      toast.success("Item removed",);
     },
     [],
   );
 
-  // Update quantity
+  const clearAllItems = useCallback(
+    () => {
+      if (items.length === 0) {
+        return;
+      }
+      setItems([],);
+      setItemIds(new Set(),);
+      toast.success("All items removed",);
+    },
+    [items.length,],
+  );
+
   const updateQuantity = useCallback(
     (id: string, quantity: number,) => {
       setItems((prevItems,) =>
@@ -69,13 +80,11 @@ export const ItemsProvider = (
     [],
   );
 
-  // Check if item exists
   const exists = useCallback(
     (id: string,) => itemIds.has(id,),
     [itemIds,],
   );
 
-  // Memoize context value
   const contextValue = useMemo(
     () => ({
       items,
@@ -83,6 +92,7 @@ export const ItemsProvider = (
       removeItem,
       updateQuantity,
       exists,
+      clearAllItems,
     }),
     [items, addItem, removeItem, updateQuantity, exists,],
   );
