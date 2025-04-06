@@ -26,8 +26,6 @@ export async function scrapeAmazonProduct(id: string,): Promise<
     throw new Error("Invalid Amazon URL",);
   }
 
-  console.log({ url, },);
-
   const scrapedDataPromise = fetch(url, {
     headers: {
       Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
@@ -70,8 +68,6 @@ export async function scrapeAmazonProduct(id: string,): Promise<
 export const composeItems = async (formData: FormData,) => {
   const link = formData.get("link",) as string;
   const isValid = await validateAmazonUrl(link,);
-
-  console.log({ isValid, },);
 
   if (!isValid) {
     throw new Error("Invalid Amazon URL",);
